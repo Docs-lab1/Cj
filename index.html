@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>MotoSwift - Bike Taxi | Lusaka</title>
+  <!-- Leaflet CSS & JS for map with coordinates -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Font Awesome 6 (free icons, similar to MTN style) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Fonts for modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #eef2f5;
+    }
+
+    /* Smartphone container */
+    .phone-app {
+      width: 100%;
+      max-width: 450px;
+      height: 780px;
+      background: white;
+      border-radius: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      scroll-behavior: smooth;
+    }
+
+    /* Hide scrollbar for cleaner look but keep functionality */
+    .phone-app::-webkit-scrollbar {
+      width: 4px;
+    }
+    .phone-app::-webkit-scrollbar-track {
+      background: #e9ecef;
+    }
+    .phone-app::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    /* Header */
+    .app-header {
+      background: #0a1e2f;
+      color: white;
+      padding: 20px 18px 12px;
+      border-radius: 0 0 28px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo i {
+      color: #f5b042;
+      margin-right: 6px;
+    }
+    .badge {
+      background: #2c3e4e;
+      padding: 6px 12px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .welcome-text {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+
+    /* Map container */
+    .map-section {
+      margin: 16px 14px;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    #map {
+      height: 280px;
+      width: 100%;
+      background: #cfdde6;
+    }
+
+    /* Info cards */
+    .nearby-status {
+      background: white;
+      margin: 8px 14px 10px;
+      padding: 10px 14px;
+      border-radius: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border: 1px solid #eef2f6;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1e2a3a;
+    }
+    .stat-item i {
+      font-size: 1.2rem;
+      color: #f5b042;
+    }
+
+    /* Ride booking form */
+    .booking-card {
+      background: white;
+      margin: 10px 14px 18px;
+      padding: 18px;
+      border-radius: 28px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08);
+      border: 1px solid #eef2f0;
+    }
+    .section-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #0f2b3b;
+    }
+    .input-group {
+      margin-bottom: 16px;
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .input-group i {
+      color: #7e8a98;
+      font-size: 1.1rem;
+      width: 24px;
+    }
+    input, select {
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-size: 0.9rem;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+    }
+    .price-estimate {
+      background: #eff6ff;
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+    }
+    .btn-primary {
+      background: #0f3b2c;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.2s;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .btn-primary:active {
+      transform: scale(0.97);
+      background: #0a2c20;
+    }
+    .btn-primary:disabled {
+      background: #b9c7b2;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* driver list / nearby vehicles like ULENDO style */
+    .nearby-riders {
+      margin: 5px 14px 20px;
+      background: white;
+      border-radius: 28px;
+      padding: 8px 12px;
+      border: 1px solid #eef2f0;
+    }
+    .rider-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 8px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    .rider-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .rider-avatar {
+      width: 44px;
+      height: 44px;
+      background: #eef2ff;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: #0f3b2c;
+    }
+    .rider-details strong {
+      display: block;
+      font-size: 0.85rem;
+    }
+    .distance {
+      font-size: 0.7rem;
+      color: #5c6e7e;
+    }
+    .status-badge {
+      font-size: 0.7rem;
+      background: #e6f7e6;
+      padding: 4px 8px;
+      border-radius: 40px;
+      color: #1f8a4c;
+    }
+
+    /* payment & trip status */
+    .trip-panel {
+      background: #fff7e5;
+      margin: 10px 14px;
+      border-radius: 24px;
+      padding: 12px;
+      display: none;
+      border-left: 5px solid #f5b042;
+    }
+    .payment-demo {
+      text-align: center;
+      margin-top: 8px;
+    }
+    .btn-pay {
+      background: #f5b042;
+      padding: 10px;
+      border-radius: 60px;
+      border: none;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.65rem;
+      padding: 20px 0 30px;
+      color: #7c8b9c;
+    }
+    i.fa, i.far, i.fas {
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div class="phone-app">
+  <div class="app-header">
+    <div class="header-top">
+      <div class="logo"><i class="fas fa-motorcycle"></i> MotoSwift</div>
+      <div class="badge"><i class="fas fa-shield-alt"></i> Safe Ride</div>
+    </div>
+    <div class="welcome-text"><i class="fas fa-map-marker-alt"></i> Lusaka • Available bikes nearby</div>
+  </div>
+
+  <!-- Map display with coordinates accuracy -->
+  <div class="map-section">
+    <div id="map"></div>
+  </div>
+
+  <!-- Nearby stats -->
+  <div class="nearby-status">
+    <div class="stat-item"><i class="fas fa-motorcycle"></i> <span id="bikeCount">0</span> Bikes nearby</div>
+    <div class="stat-item"><i class="fas fa-car"></i> <span id="carCount">0</span> Cars (ULENDO style)</div>
+    <div class="stat-item"><i class="fas fa-charging-station"></i> ETA ~3min</div>
+  </div>
+
+  <!-- Booking form -->
+  <div class="booking-card">
+    <div class="section-title"><i class="fas fa-ticket-alt"></i> Book Your Ride</div>
+    <div class="input-group"><i class="fas fa-circle-dot"></i><input type="text" id="pickup" placeholder="Pickup location" value="Arcades Shopping Mall, Lusaka"></div>
+    <div class="input-group"><i class="fas fa-flag-checkered"></i><input type="text" id="dropoff" placeholder="Dropoff location" value="EastPark Mall, Lusaka"></div>
+    <div class="input-group"><i class="fas fa-motorcycle"></i>
+      <select id="vehicleType">
+        <option value="bike">🏍️ Motor Bike (Fast & Cheap)</option>
+        <option value="car">🚗 ULENDO Car (Comfort)</option>
+      </select>
+    </div>
+    <div class="price-estimate"><span>💰 Estimated fare</span> <strong id="estPrice">ZMW 22</strong></div>
+    <button id="requestRideBtn" class="btn-primary"><i class="fas fa-location-dot"></i> Request Ride</button>
+  </div>
+
+  <!-- Nearby Riders/Dynamic list (like ULENDO cars & bikes) -->
+  <div class="nearby-riders">
+    <div class="section-title"><i class="fas fa-taxi"></i> Nearby Vehicles (Live)</div>
+    <div id="ridersList">
+      <!-- dynamically populated -->
+      <div class="rider-item"><div class="rider-info"><div class="rider-avatar"><i class="fas fa-motorcycle"></i></div><div class="rider-details"><strong>Bike - Kelvin B.</strong><span class="distance">~0.4 km away</span></div></div><div class="status-badge">Available</div></div>
+      <div class="rider-item"><div class="rider-info"><div class="rider-avatar"><i class="fas fa-car"></i></div><div class="rider-details"><strong>ULENDO - Car</strong><span class="distance">~0.7 km away</span></div></div><div class="status-badge">Ready</div></div>
+    </div>
+  </div>
+
+  <!-- Trip & payment panel: driver only picks after payment done -->
+  <div id="tripPanel" class="trip-panel">
+    <div><i class="fas fa-hourglass-half"></i> <strong>Trip Status:</strong> <span id="tripStatusMsg">Awaiting payment</span></div>
+    <div id="paymentArea" class="payment-demo">
+      <button id="simulatePaymentBtn" class="btn-pay"><i class="fas fa-credit-card"></i> Pay Now (MTN Mobile Money)</button>
+      <small style="display: block; margin-top: 8px;">✅ After payment, driver will be dispatched to pick you up.</small>
+    </div>
+    <div id="driverActionMsg" style="font-size:0.75rem; margin-top: 8px; color:#2c5f2d;"></div>
+  </div>
+  <footer>⚡ Powered by GPS • Driver only picks after payment confirmation</footer>
+</div>
+
+<script>
+  // ---------- BACKEND SIMULATION (in-memory store, works as full frontend + mock backend) ----------
+  // Real coordinates: Lusaka region approx -15.3875, 28.3228 (center). We'll use sample coordinate points for accuracy.
+  const LUSAKA_CENTER = [-15.3875, 28.3228];
+  
+  // Nearby vehicles (bikes and cars like ULENDO) with accurate coordinates, shown on map with icons.
+  let nearbyVehicles = [
+    { id: 1, type: "bike", name: "Bike - James M.", lat: -15.3842, lng: 28.3195, available: true, distanceToUser: 0 },
+    { id: 2, type: "bike", name: "Bike - Grace C.", lat: -15.3901, lng: 28.3250, available: true, distanceToUser: 0 },
+    { id: 3, type: "bike", name: "Bike - Peter K.", lat: -15.3820, lng: 28.3282, available: true, distanceToUser: 0 },
+    { id: 4, type: "car", name: "ULENDO - Toyota", lat: -15.3889, lng: 28.3205, available: true, distanceToUser: 0, carBrand: "Comfort" },
+    { id: 5, type: "car", name: "ULENDO - Honda", lat: -15.3925, lng: 28.3267, available: true, distanceToUser: 0 },
+    { id: 6, type: "car", name: "ULENDO - Nissan", lat: -15.3798, lng: 28.3180, available: true, distanceToUser: 0 }
+  ];
+
+  // User state
+  let userLocation = { lat: -15.3875, lng: 28.3228 }; // default map center similar to Arcades mall
+  let activeRideRequest = null;   // stores requested ride {vehicleType, pickup, dropoff, price, status, paymentDone, driverAssigned}
+  let map = null;
+  let markers = [];      // vehicle markers
+  let userMarker = null;
+  
+  // Helper: calculate distance (haversine km)
+  function haversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  // update distances from user to vehicles
+  function updateDistances() {
+    for (let v of nearbyVehicles) {
+      v.distanceToUser = haversineDistance(userLocation.lat, userLocation.lng, v.lat, v.lng);
+    }
+    // sort for UI display
+    nearbyVehicles.sort((a,b) => a.distanceToUser - b.distanceToUser);
+    renderNearbyList();
+    updateStats();
+  }
+
+  // update nearby stats (bike & car count)
+  function updateStats() {
+    const bikeCount = nearbyVehicles.filter(v => v.type === 'bike' && v.available).length;
+    const carCount = nearbyVehicles.filter(v => v.type === 'car' && v.available).length;
+    document.getElementById('bikeCount').innerText = bikeCount;
+    document.getElementById('carCount').innerText = carCount;
+  }
+
+  // render list of vehicles (like ULENDO app style)
+  function renderNearbyList() {
+    const container = document.getElementById('ridersList');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let v of nearbyVehicles) {
+      if (!v.available) continue; // only show available
+      const iconClass = v.type === 'bike' ? 'fa-motorcycle' : 'fa-car';
+      const typeLabel = v.type === 'bike' ? '🏍️ Bike' : '🚗 ULENDO Car';
+      const distanceKm = v.distanceToUser.toFixed(1);
+      const div = document.createElement('div');
+      div.className = 'rider-item';
+      div.innerHTML = `
+        <div class="rider-info">
+          <div class="rider-avatar"><i class="fas ${iconClass}"></i></div>
+          <div class="rider-details"><strong>${v.name}</strong><span class="distance">${distanceKm} km away</span></div>
+        </div>
+        <div class="status-badge"><i class="fas fa-circle"></i> Ready</div>
+      `;
+      container.appendChild(div);
+    }
+    if (container.children.length === 0) container.innerHTML = '<div class="rider-item">No vehicles available nearby</div>';
+  }
+
+  // Update map markers & show nearby bikes/cars
+  function updateMapMarkers() {
+    if (!map) return;
+    // clear previous markers
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+    // add vehicle markers (bike vs car icon)
+    for (let v of nearbyVehicles) {
+      if (!v.available) continue;
+      const iconUrl = v.type === 'bike' 
+        ? 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png' 
+        : 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+      // custom marker with different color effect: using leaflet extra for car? we'll use divIcon to differentiate 
+      const bikeIcon = L.divIcon({
+        html: `<div style="background-color:#0f3b2c; border-radius:30px; padding:6px; color:white; font-size:14px; width:30px; text-align:center; box-shadow:0 2px 5px;"><i class="fas ${v.type === 'bike' ? 'fa-motorcycle' : 'fa-car'}"></i></div>`,
+        iconSize: [30, 30],
+        className: 'custom-vehicle-marker'
+      });
+      const marker = L.marker([v.lat, v.lng], { icon: bikeIcon }).addTo(map);
+      marker.bindPopup(`${v.name}<br>${v.type === 'bike' ? '🏍️ Motorbike' : '🚗 ULENDO Car'} • ${v.distanceToUser.toFixed(1)} km away`);
+      markers.push(marker);
+    }
+    // user marker
+    if (userMarker) map.removeLayer(userMarker);
+    userMarker = L.marker([userLocation.lat, userLocation.lng], { 
+      icon: L.divIcon({ html: `<div style="background:#1e88e5; border-radius:30px; padding:6px; color:white;"><i class="fas fa-user"></i></div>`, iconSize: [30,30] })
+    }).addTo(map).bindPopup("You are here").openPopup();
+  }
+
+  // price estimate (dynamic)
+  function estimatePrice(vehicleType, distanceRef = 2.5) {
+    // use distance to nearest vehicle? but fixed approx fare based on type
+    if (vehicleType === 'bike') return Math.floor(15 + (distanceRef * 3.5)); // ZMW ~20-30
+    else return Math.floor(30 + (distanceRef * 5)); // car price higher
+  }
+
+  document.getElementById('vehicleType').addEventListener('change', function() {
+    const type = this.value;
+    const price = estimatePrice(type, 2.2);
+    document.getElementById('estPrice').innerText = `ZMW ${price}`;
+  });
+  
+  // Request ride (pre-payment)
+  document.getElementById('requestRideBtn').addEventListener('click', () => {
+    if (activeRideRequest && activeRideRequest.status !== 'completed') {
+      alert('Please complete or cancel existing trip first.');
+      return;
+    }
+    const pickup = document.getElementById('pickup').value;
+    const dropoff = document.getElementById('dropoff').value;
+    const vehicleType = document.getElementById('vehicleType').value;
+    if (!pickup || !dropoff) { alert("Enter pickup & dropoff"); return; }
+    const est = estimatePrice(vehicleType, 2.4);
+    // Create ride request requiring payment BEFORE driver can pick up
+    activeRideRequest = {
+      rideId: 'RID' + Date.now(),
+      pickup,
+      dropoff,
+      vehicleType,
+      estimatedPrice: est,
+      status: 'pending_payment',
+      paymentDone: false,
+      driverAssigned: null,
+      driverAccepted: false
+    };
+    // Show trip panel and update messages
+    const panel = document.getElementById('tripPanel');
+    panel.style.display = 'block';
+    document.getElementById('tripStatusMsg').innerHTML = `<i class="fas fa-credit-card"></i> Payment required to assign driver`;
+    document.getElementById('driverActionMsg').innerHTML = '⚠️ Driver will arrive only after payment confirmation.';
+    // also enable payment button
+    const payBtn = document.getElementById('simulatePaymentBtn');
+    payBtn.disabled = false;
+    payBtn.style.opacity = '1';
+    // scroll to panel
+    panel.scrollIntoView({ behavior: 'smooth' });
+  });
+  
+  // Payment simulation (MTN Mobile Money style)
+  document.getElementById('simulatePaymentBtn').addEventListener('click', () => {
+    if (!activeRideRequest) {
+      alert('No active ride request. Please request a ride first.');
+      return;
+    }
+    if (activeRideRequest.paymentDone) {
+      alert('Payment already completed. Driver is on the way.');
+      return;
+    }
+    // simulate payment success
+    activeRideRequest.paymentDone = true;
+    activeRideRequest.status = 'paid_waiting_driver';
+    document.getElementById('tripStatusMsg').innerHTML = `<i class="fas fa-check-circle" style="color:#2e7d32;"></i> Payment successful! Dispatching nearest ${activeRideRequest.vehicleType === 'bike' ? 'bike' : 'ULENDO car'}...`;
+    document.getElementById('driverActionMsg').innerHTML = '✅ Payment confirmed. A driver has been assigned and is coming to your location.';
+    // assign driver logic: find nearest available vehicle of selected type
+    let availableVehicles = nearbyVehicles.filter(v => v.type === activeRideRequest.vehicleType && v.available);
+    if (availableVehicles.length === 0) {
+      document.getElementById('driverActionMsg').innerHTML = '❌ No drivers available now, please try again shortly.';
+      return;
+    }
+    // sort by distance to user
+    availableVehicles.sort((a,b) => a.distanceToUser - b.distanceToUser);
+    const assignedDriver = availableVehicles[0];
+    activeRideRequest.driverAssigned = assignedDriver;
+    assignedDriver.available = false;  // driver becomes busy
+    activeRideRequest.status = 'driver_assigned';
+    document.getElementById('driverActionMsg').innerHTML = `🏍️ ${assignedDriver.name} (${assignedDriver.type === 'bike' ? 'Motor Bike' : 'ULENDO Car'}) is heading to your pickup. ETA ${assignedDriver.distanceToUser.toFixed(1)} min.`;
+    document.getElementById('tripStatusMsg').innerHTML = `<i class="fas fa-motorcycle"></i> Driver assigned! Arriving shortly.`;
+    // update map markers & nearby list (remove assigned driver availability)
+    updateDistances();
+    updateMapMarkers();
+    // disable pay button after payment
+    document.getElementById('simulatePaymentBtn').disabled = true;
+    document.getElementById('simulatePaymentBtn').style.opacity = '0.6';
+    // optional: after 8 seconds complete trip simulation (demo)
+    setTimeout(() => {
+      if (activeRideRequest && activeRideRequest.status === 'driver_assigned') {
+        activeRideRequest.status = 'completed';
+        document.getElementById('tripStatusMsg').innerHTML = `<i class="fas fa-flag-checkered"></i> Trip Completed! Thank you for riding with MotoSwift.`;
+        document.getElementById('driverActionMsg').innerHTML = `⭐ Rate your ride. Driver is free again.`;
+        // free the driver again
+        if (assignedDriver) {
+          const driverIdx = nearbyVehicles.findIndex(v => v.id === assignedDriver.id);
+          if (driverIdx !== -1) nearbyVehicles[driverIdx].available = true;
+          updateDistances();
+          updateMapMarkers();
+        }
+        // reset ride request after 3 sec?
+        setTimeout(() => {
+          activeRideRequest = null;
+          document.getElementById('tripPanel').style.display = 'none';
+        }, 4000);
+      }
+    }, 8000);
+  });
+  
+  // initialize map and set watch position (coordinates accuracy)
+  function initMapAndGeolocation() {
+    map = L.map('map').setView([userLocation.lat, userLocation.lng], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & CartoDB'
+    }).addTo(map);
+    
+    // Try to get real user coordinates for accuracy
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const realLat = position.coords.latitude;
+        const realLng = position.coords.longitude;
+        userLocation = { lat: realLat, lng: realLng };
+        map.setView([realLat, realLng], 16);
+        updateDistances();
+        updateMapMarkers();
+        // optional, adjust vehicles around user for dynamic feel? but keep original proximity
+      }, (err) => {
+        console.warn("Geolocation fallback: Using Lusaka demo coords");
+        updateDistances();
+        updateMapMarkers();
+      });
+    } else {
+      updateDistances();
+      updateMapMarkers();
+    }
+    // initial render
+    updateDistances();
+    updateMapMarkers();
+    map.on('moveend', () => {
+      // keep nearby list consistent
+    });
+  }
+  
+  // refresh dynamic distances every 5 seconds? optionally realtime
+  setInterval(() => {
+    if (userLocation) {
+      updateDistances();
+      updateMapMarkers();
+      // update price based on nearest? no need
+    }
+  }, 7000);
+  
+  // start app
+  initMapAndGeolocation();
+  document.getElementById('estPrice').innerText = `ZMW ${estimatePrice('bike', 2.2)}`;
+</script>
+</body>
+</html>
