@@ -10,18 +10,14 @@
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <!-- Chart.js for admin analytics -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js for admin -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #eef2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
-    
-    /* Main App Container */
     .app-container { width: 100%; max-width: 500px; height: 800px; background: white; border-radius: 40px; overflow-y: auto; overflow-x: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); position: relative; scroll-behavior: smooth; }
     .app-container::-webkit-scrollbar { width: 4px; }
-    
-    /* Auth Screens */
     .auth-screen { padding: 30px 24px; text-align: center; }
     .logo-large { font-size: 3rem; color: #f5b042; margin-bottom: 20px; }
     .role-selector { display: flex; gap: 12px; margin: 20px 0; background: #f1f5f9; padding: 6px; border-radius: 60px; }
@@ -32,46 +28,38 @@
     .input-field input { border: none; background: transparent; width: 100%; outline: none; font-size: 0.95rem; }
     .btn-primary { background: #0f3b2c; color: white; border: none; width: 100%; padding: 14px; border-radius: 40px; font-weight: 700; font-size: 1rem; margin-top: 16px; cursor: pointer; transition: 0.2s; }
     .btn-primary:active { transform: scale(0.97); }
-    
-    /* Main App Header */
+    .btn-secondary { background: #f5b042; color: #1e2a3a; }
     .app-header { background: #0a1e2f; color: white; padding: 20px 18px 12px; border-radius: 0 0 28px 28px; display: flex; justify-content: space-between; align-items: center; }
     .user-info { display: flex; align-items: center; gap: 12px; }
     .logout-btn { background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; }
-    
-    /* Map */
-    .map-section { margin: 16px 14px; border-radius: 28px; overflow: hidden; height: 260px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    #map { height: 100%; width: 100%; }
-    
-    /* Stats Cards */
+    .map-section { margin: 16px 14px; border-radius: 28px; overflow: hidden; height: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    #customerMap, #driverMap { height: 100%; width: 100%; }
     .stats-row { display: flex; gap: 12px; margin: 12px 14px; }
     .stat-card { flex: 1; background: white; padding: 12px; border-radius: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .stat-card i { font-size: 1.5rem; color: #f5b042; }
-    
-    /* Booking Card */
     .booking-card { background: white; margin: 12px 14px; padding: 18px; border-radius: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
     .section-title { font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .input-group { background: #f8fafc; border-radius: 20px; padding: 12px 14px; margin: 10px 0; display: flex; align-items: center; gap: 12px; }
     .price-display { background: #eff6ff; padding: 12px; border-radius: 18px; display: flex; justify-content: space-between; margin: 12px 0; }
-    
-    /* Driver Panel */
     .driver-panel { background: #fff7e5; margin: 12px 14px; padding: 16px; border-radius: 24px; border-left: 4px solid #f5b042; display: none; }
-    .customer-location { font-weight: 600; margin: 10px 0; }
-    
-    /* Admin Panel */
     .admin-section { margin: 12px 14px; }
     .bike-list { background: white; border-radius: 20px; padding: 12px; margin-top: 12px; max-height: 300px; overflow-y: auto; }
     .bike-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-    .bike-status { font-size: 0.7rem; padding: 4px 8px; border-radius: 20px; background: #e6f7e6; color: #2e7d32; }
-    
     .toast-msg { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #0f3b2c; color: white; padding: 10px 20px; border-radius: 40px; font-size: 0.8rem; z-index: 1000; display: none; }
-    
     .hidden { display: none; }
     .tab-bar { display: flex; background: white; border-top: 1px solid #e2e8f0; padding: 8px 16px; gap: 20px; justify-content: space-around; position: sticky; bottom: 0; }
     .tab-item { text-align: center; padding: 8px; cursor: pointer; color: #64748b; }
     .tab-item.active { color: #0f3b2c; font-weight: 600; }
-    
-    /* Kasama specific */
     .location-badge { background: #fef3c7; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
+    .driver-contact-card { background: #f8fafc; padding: 10px; border-radius: 16px; margin-top: 8px; display: flex; gap: 12px; justify-content: center; }
+    .contact-btn { background: #e2e8f0; border: none; padding: 8px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .contact-btn i { font-size: 0.9rem; }
+    .contact-btn.call { background: #22c55e; color: white; }
+    .contact-btn.sms { background: #3b82f6; color: white; }
+    .popup-content { min-width: 200px; }
+    .popup-driver-name { font-weight: 700; font-size: 1rem; color: #0a1e2f; }
+    .popup-detail { font-size: 0.8rem; margin: 4px 0; color: #475569; }
+    .popup-contact-btns { display: flex; gap: 8px; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -82,13 +70,11 @@
       <div class="logo-large"><i class="fas fa-motorcycle"></i></div>
       <h2 style="color:#0a1e2f;">Kasama Rides</h2>
       <p style="color:#64748b; margin:8px 0 20px;">Northern Province, Zambia</p>
-      
       <div class="role-selector" id="roleSelector">
         <button class="role-btn active" data-role="customer">Customer</button>
         <button class="role-btn" data-role="driver">Driver</button>
         <button class="role-btn" data-role="admin">Admin</button>
       </div>
-      
       <div id="loginForm">
         <div class="input-field"><i class="fas fa-user"></i><input type="text" id="loginUsername" placeholder="Username" value="customer1"></div>
         <div class="input-field"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="Password" value="pass123"></div>
@@ -102,10 +88,10 @@
   <div id="customerApp" class="hidden">
     <div class="app-header"><div><i class="fas fa-motorcycle"></i> Kasama Rides</div><div class="user-info"><span id="customerName">Customer</span><span class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></span></div></div>
     <div class="map-section"><div id="customerMap"></div></div>
-    <div class="stats-row"><div class="stat-card"><i class="fas fa-motorcycle"></i><div><span id="nearbyBikesCount">0</span><br>Nearby Bikes</div></div><div class="stat-card"><i class="fas fa-map-marker-alt"></i><div>Kasama<br><span class="location-badge">Central</span></div></div></div>
+    <div class="stats-row"><div class="stat-card"><i class="fas fa-motorcycle"></i><div><span id="nearbyBikesCount">0</span><br>Nearby Bikes</div></div><div class="stat-card"><i class="fas fa-map-marker-alt"></i><div>Kasama<br><span class="location-badge">Central District</span></div></div></div>
     <div class="booking-card"><div class="section-title"><i class="fas fa-ticket-alt"></i> Book a Ride</div>
-      <div class="input-group"><i class="fas fa-circle-dot"></i><input type="text" id="pickupAddr" placeholder="Pickup" value="Kasama Town Centre"></div>
-      <div class="input-group"><i class="fas fa-flag-checkered"></i><input type="text" id="dropoffAddr" placeholder="Dropoff" value="Chinsali Road"></div>
+      <div class="input-group"><i class="fas fa-circle-dot"></i><input type="text" id="pickupAddr" placeholder="Pickup location" value="Kasama Town Centre"></div>
+      <div class="input-group"><i class="fas fa-flag-checkered"></i><input type="text" id="dropoffAddr" placeholder="Dropoff location" value="Chinsali Road"></div>
       <div class="price-display"><span>💰 Fare Estimate</span><strong id="fareEstimate">ZMW 18</strong></div>
       <button class="btn-primary" id="requestRideBtn"><i class="fas fa-location-dot"></i> Request Ride</button>
     </div>
@@ -129,9 +115,9 @@
   <div id="adminApp" class="hidden">
     <div class="app-header"><div><i class="fas fa-shield-alt"></i> Admin Control</div><span class="logout-btn" onclick="logout()">Logout</span></div>
     <div class="admin-section"><div class="section-title"><i class="fas fa-plus-circle"></i> Register New Motor Bike</div>
-      <div class="input-group"><i class="fas fa-motorcycle"></i><input type="text" id="bikeRegNo" placeholder="Registration Number (e.g., ABC 123)"></div>
+      <div class="input-group"><i class="fas fa-motorcycle"></i><input type="text" id="bikeRegNo" placeholder="Registration Number (e.g., BCA 123)"></div>
       <div class="input-group"><i class="fas fa-user"></i><input type="text" id="bikeDriverName" placeholder="Driver Name"></div>
-      <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="bikeDriverPhone" placeholder="Phone Number"></div>
+      <div class="input-group"><i class="fas fa-phone"></i><input type="text" id="bikeDriverPhone" placeholder="Phone Number (e.g., +26097xxxxxx)"></div>
       <div class="input-group"><i class="fas fa-key"></i><input type="password" id="bikePassword" placeholder="Set Driver Password" value="driver123"></div>
       <button class="btn-primary" id="addBikeBtn"><i class="fas fa-save"></i> Register Bike & Driver</button>
     </div>
@@ -144,18 +130,17 @@
 </div>
 
 <script>
-  // ---------- DATABASE (LocalStorage Simulation for GitHub hosting) ----------
-  // Structured as: users, bikes, rides, payments
+  // ---------- DATABASE (LocalStorage for GitHub hosting) ----------
   let db = {
     users: JSON.parse(localStorage.getItem('kasama_users')) || [
-      { id: 1, username: 'customer1', password: 'pass123', role: 'customer', name: 'John Mwila', balance: 150 },
-      { id: 2, username: 'driver1', password: 'pass123', role: 'driver', name: 'Kelvin Banda', driverId: 'DRV001', earnings: 0, ridesCompleted: 0, isOnline: true, assignedBike: 'BCA 101' },
-      { id: 3, username: 'admin', password: 'admin123', role: 'admin', name: 'Admin Kasama' }
+      { id: 1, username: 'customer1', password: 'pass123', role: 'customer', name: 'John Mwila', phone: '+260970000001', balance: 150 },
+      { id: 2, username: 'driver1', password: 'pass123', role: 'driver', name: 'Kelvin Banda', phone: '+260977123456', driverId: 'DRV001', earnings: 0, ridesCompleted: 0, isOnline: true, assignedBike: 'BCA 101' },
+      { id: 3, username: 'admin', password: 'admin123', role: 'admin', name: 'Admin Kasama', phone: '' }
     ],
     bikes: JSON.parse(localStorage.getItem('kasama_bikes')) || [
-      { id: 1, registration: 'BCA 101', driverId: 'DRV001', driverName: 'Kelvin Banda', isActive: true, lat: -10.2100, lng: 31.1800, status: 'available' },
-      { id: 2, registration: 'BCA 202', driverId: 'DRV002', driverName: 'Grace Phiri', isActive: true, lat: -10.2085, lng: 31.1825, status: 'available' },
-      { id: 3, registration: 'BCA 303', driverId: 'DRV003', driverName: 'Peter Zulu', isActive: true, lat: -10.2120, lng: 31.1780, status: 'available' }
+      { id: 1, registration: 'BCA 101', driverId: 'DRV001', driverName: 'Kelvin Banda', driverPhone: '+260977123456', isActive: true, lat: -10.2100, lng: 31.1800, status: 'available' },
+      { id: 2, registration: 'BCA 202', driverId: 'DRV002', driverName: 'Grace Phiri', driverPhone: '+260977234567', isActive: true, lat: -10.2085, lng: 31.1825, status: 'available' },
+      { id: 3, registration: 'BCA 303', driverId: 'DRV003', driverName: 'Peter Zulu', driverPhone: '+260977345678', isActive: true, lat: -10.2120, lng: 31.1780, status: 'available' }
     ],
     rides: JSON.parse(localStorage.getItem('kasama_rides')) || [],
     payments: JSON.parse(localStorage.getItem('kasama_payments')) || []
@@ -163,49 +148,218 @@
   
   function saveDB() { localStorage.setItem('kasama_users', JSON.stringify(db.users)); localStorage.setItem('kasama_bikes', JSON.stringify(db.bikes)); localStorage.setItem('kasama_rides', JSON.stringify(db.rides)); localStorage.setItem('kasama_payments', JSON.stringify(db.payments)); }
   
-  // Kasama District coordinates
   const KASAMA_CENTER = [-10.2125, 31.1800];
   let currentUser = null;
   let customerMap, driverMap, customerMarkers = [], driverMarkers = [];
-  let rideInterval = null;
-  let driverLocationInterval = null;
+  let rideInterval = null, driverLocationInterval = null;
   
   function showToast(msg) { let t = document.getElementById('toastMsg'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
   
-  // Login Logic
+  // Login
   document.getElementById('loginBtn').onclick = () => { let uname = document.getElementById('loginUsername').value; let pwd = document.getElementById('loginPassword').value; let role = document.querySelector('.role-btn.active').dataset.role; let user = db.users.find(u => u.username === uname && u.password === pwd && u.role === role); if(user) { currentUser = user; if(role === 'customer') loadCustomerApp(); else if(role === 'driver') loadDriverApp(); else if(role === 'admin') loadAdminApp(); } else showToast('Invalid credentials'); };
   function logout() { currentUser = null; document.getElementById('authScreen').classList.remove('hidden'); document.getElementById('customerApp').classList.add('hidden'); document.getElementById('driverApp').classList.add('hidden'); document.getElementById('adminApp').classList.add('hidden'); document.getElementById('authScreen').style.display = 'block'; if(rideInterval) clearInterval(rideInterval); if(driverLocationInterval) clearInterval(driverLocationInterval); }
   
-  // Helper: Get only registered/active bikes
   function getActiveBikes() { return db.bikes.filter(b => b.isActive && b.status === 'available'); }
   
-  // CUSTOMER APP
-  function loadCustomerApp() { document.getElementById('authScreen').style.display = 'none'; document.getElementById('customerApp').classList.remove('hidden'); document.getElementById('driverApp').classList.add('hidden'); document.getElementById('adminApp').classList.add('hidden'); initCustomerMap(); updateNearbyCount(); setInterval(updateNearbyCount, 8000); }
-  function initCustomerMap() { customerMap = L.map('customerMap').setView(KASAMA_CENTER, 15); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(customerMap); updateCustomerBikeMarkers(); }
-  function updateCustomerBikeMarkers() { if(!customerMap) return; customerMarkers.forEach(m => customerMap.removeLayer(m)); customerMarkers = []; let activeBikes = db.bikes.filter(b => b.isActive && b.status === 'available'); activeBikes.forEach(bike => { let marker = L.marker([bike.lat, bike.lng], { icon: L.divIcon({ html: '<div style="background:#0f3b2c; border-radius:30px; padding:5px; color:white;"><i class="fas fa-motorcycle"></i></div>', iconSize: [30,30] }) }).addTo(customerMap).bindPopup(`${bike.driverName} - ${bike.registration}`); customerMarkers.push(marker); }); }
-  function updateNearbyCount() { let activeCount = db.bikes.filter(b => b.isActive && b.status === 'available').length; document.getElementById('nearbyBikesCount').innerText = activeCount; updateCustomerBikeMarkers(); }
-  document.getElementById('requestRideBtn').onclick = () => { if(!currentUser) return; let pickup = document.getElementById('pickupAddr').value; let dropoff = document.getElementById('dropoffAddr').value; let fare = Math.floor(15 + Math.random() * 15); let availableBike = db.bikes.find(b => b.isActive && b.status === 'available'); if(!availableBike) { showToast('No bikes available'); return; } let ride = { id: Date.now(), customerId: currentUser.id, customerName: currentUser.name, pickup, dropoff, fare, status: 'pending_payment', bikeId: availableBike.id, driverId: availableBike.driverId, driverName: availableBike.driverName, createdAt: new Date().toISOString(), paymentDone: false }; db.rides.push(ride); saveDB(); showToast(`Ride requested! Pay ZMW ${fare} to get driver`); document.getElementById('customerTripStatus').style.display = 'block'; document.getElementById('customerTripStatus').innerHTML = `<i class="fas fa-credit-card"></i> Amount Due: ZMW ${fare}<br><button id="payNowBtn" style="background:#f5b042; border:none; padding:8px 16px; border-radius:40px; margin-top:8px; font-weight:bold;">Pay with MTN Mobile Money</button>`; document.getElementById('payNowBtn').onclick = () => processPayment(ride); };
-  function processPayment(ride) { let rideObj = db.rides.find(r => r.id === ride.id); if(!rideObj || rideObj.paymentDone) return; rideObj.paymentDone = true; rideObj.status = 'paid'; db.payments.push({ id: Date.now(), rideId: ride.id, amount: ride.fare, method: 'MTN Mobile Money', status: 'completed' }); let bike = db.bikes.find(b => b.id === rideObj.bikeId); if(bike) bike.status = 'assigned'; saveDB(); showToast('Payment successful! Driver is coming to pick you up.'); document.getElementById('customerTripStatus').innerHTML = `<i class="fas fa-motorcycle"></i> Driver ${rideObj.driverName} is on the way! Track on map.`; updateCustomerBikeMarkers(); notifyDriver(rideObj); }
+  // ========== CUSTOMER APP WITH INTERACTIVE BIKE MARKERS (CALL/SMS) ==========
+  function loadCustomerApp() { 
+    document.getElementById('authScreen').style.display = 'none'; 
+    document.getElementById('customerApp').classList.remove('hidden'); 
+    document.getElementById('driverApp').classList.add('hidden'); 
+    document.getElementById('adminApp').classList.add('hidden');
+    document.getElementById('customerName').innerText = currentUser.name;
+    initCustomerMap(); 
+    updateNearbyCount(); 
+    setInterval(() => { if(currentUser && currentUser.role === 'customer') updateCustomerBikeMarkers(); }, 7000);
+  }
+  
+  function initCustomerMap() { 
+    customerMap = L.map('customerMap').setView(KASAMA_CENTER, 15); 
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(customerMap); 
+    updateCustomerBikeMarkers();
+    // Try to get user location
+    if(navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        let userLoc = [pos.coords.latitude, pos.coords.longitude];
+        customerMap.setView(userLoc, 16);
+        L.marker(userLoc, { icon: L.divIcon({ html: '<div style="background:#1e88e5; border-radius:30px; padding:6px; color:white;"><i class="fas fa-user"></i></div>', iconSize: [30,30] }) }).addTo(customerMap).bindPopup('You are here');
+      });
+    }
+  }
+  
+  // Create popup content with driver details, contact, call & SMS buttons
+  function createDriverPopup(bike) {
+    let popupDiv = document.createElement('div');
+    popupDiv.className = 'popup-content';
+    popupDiv.innerHTML = `
+      <div class="popup-driver-name"><i class="fas fa-motorcycle"></i> ${bike.driverName}</div>
+      <div class="popup-detail"><i class="fas fa-hashtag"></i> Reg: ${bike.registration}</div>
+      <div class="popup-detail"><i class="fas fa-phone-alt"></i> ${bike.driverPhone || 'N/A'}</div>
+      <div class="popup-detail"><i class="fas fa-map-marker-alt"></i> ~${(Math.random() * 0.8 + 0.2).toFixed(1)} km away</div>
+      <div class="popup-contact-btns">
+        <button class="contact-btn call" data-phone="${bike.driverPhone}"><i class="fas fa-phone"></i> Call</button>
+        <button class="contact-btn sms" data-phone="${bike.driverPhone}" data-name="${bike.driverName}"><i class="fas fa-envelope"></i> SMS</button>
+      </div>
+    `;
+    // Attach event listeners after DOM insertion
+    setTimeout(() => {
+      let callBtn = popupDiv.querySelector('.call');
+      let smsBtn = popupDiv.querySelector('.sms');
+      if(callBtn) callBtn.onclick = (e) => { e.stopPropagation(); makeCall(bike.driverPhone); };
+      if(smsBtn) smsBtn.onclick = (e) => { e.stopPropagation(); sendSMS(bike.driverPhone, bike.driverName); };
+    }, 10);
+    return popupDiv;
+  }
+  
+  function makeCall(phoneNumber) {
+    if(!phoneNumber) { showToast('Driver phone number not available'); return; }
+    window.location.href = `tel:${phoneNumber}`;
+    showToast(`Calling ${phoneNumber}...`);
+  }
+  
+  function sendSMS(phoneNumber, driverName) {
+    if(!phoneNumber) { showToast('Driver phone number not available'); return; }
+    let message = encodeURIComponent(`Hello ${driverName}, I need a ride from Kasama. Please pick me up. - Kasama Rides App`);
+    window.location.href = `sms:${phoneNumber}?body=${message}`;
+    showToast(`Opening SMS to ${driverName}`);
+  }
+  
+  function updateCustomerBikeMarkers() { 
+    if(!customerMap) return; 
+    customerMarkers.forEach(m => customerMap.removeLayer(m)); 
+    customerMarkers = []; 
+    let activeBikes = db.bikes.filter(b => b.isActive && b.status === 'available'); 
+    activeBikes.forEach(bike => { 
+      let customIcon = L.divIcon({ 
+        html: '<div style="background:#0f3b2c; border-radius:30px; padding:8px; color:white; font-size:14px; width:36px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.2);"><i class="fas fa-motorcycle"></i></div>', 
+        iconSize: [36,36], 
+        className: 'bike-marker' 
+      });
+      let marker = L.marker([bike.lat, bike.lng], { icon: customIcon }).addTo(customerMap);
+      let popupContent = createDriverPopup(bike);
+      marker.bindPopup(popupContent, { maxWidth: 260, minWidth: 200 });
+      marker.on('click', () => { marker.openPopup(); });
+      customerMarkers.push(marker); 
+    }); 
+    document.getElementById('nearbyBikesCount').innerText = activeBikes.length;
+  }
+  
+  function updateNearbyCount() { updateCustomerBikeMarkers(); }
+  
+  // Ride Request with payment
+  document.getElementById('requestRideBtn').onclick = () => { 
+    if(!currentUser) return; 
+    let pickup = document.getElementById('pickupAddr').value; 
+    let dropoff = document.getElementById('dropoffAddr').value; 
+    let fare = Math.floor(15 + Math.random() * 15); 
+    let availableBike = db.bikes.find(b => b.isActive && b.status === 'available'); 
+    if(!availableBike) { showToast('No bikes available nearby'); return; } 
+    let ride = { id: Date.now(), customerId: currentUser.id, customerName: currentUser.name, customerPhone: currentUser.phone, pickup, dropoff, fare, status: 'pending_payment', bikeId: availableBike.id, driverId: availableBike.driverId, driverName: availableBike.driverName, driverPhone: availableBike.driverPhone, createdAt: new Date().toISOString(), paymentDone: false }; 
+    db.rides.push(ride); saveDB(); 
+    showToast(`Ride requested! Pay ZMW ${fare} to get driver`); 
+    document.getElementById('customerTripStatus').style.display = 'block'; 
+    document.getElementById('customerTripStatus').innerHTML = `<i class="fas fa-credit-card"></i> Amount Due: ZMW ${fare}<br><button id="payNowBtn" style="background:#f5b042; border:none; padding:8px 16px; border-radius:40px; margin-top:8px; font-weight:bold;">Pay with MTN Mobile Money</button>`; 
+    document.getElementById('payNowBtn').onclick = () => processPayment(ride); 
+  };
+  
+  function processPayment(ride) { 
+    let rideObj = db.rides.find(r => r.id === ride.id); 
+    if(!rideObj || rideObj.paymentDone) return; 
+    rideObj.paymentDone = true; 
+    rideObj.status = 'paid'; 
+    db.payments.push({ id: Date.now(), rideId: ride.id, amount: ride.fare, method: 'MTN Mobile Money', status: 'completed' }); 
+    let bike = db.bikes.find(b => b.id === rideObj.bikeId); 
+    if(bike) bike.status = 'assigned'; 
+    saveDB(); 
+    showToast('Payment successful! Driver is coming to pick you up.'); 
+    document.getElementById('customerTripStatus').innerHTML = `<i class="fas fa-motorcycle"></i> Driver ${rideObj.driverName} is on the way!<br><i class="fas fa-phone"></i> Contact: <button class="contact-btn call" style="background:#22c55e; padding:4px 12px;" onclick="makeCall('${rideObj.driverPhone}')"><i class="fas fa-phone"></i> Call Driver</button> <button class="contact-btn sms" style="background:#3b82f6; padding:4px 12px;" onclick="sendSMS('${rideObj.driverPhone}','${rideObj.driverName}')"><i class="fas fa-envelope"></i> SMS</button>`; 
+    updateCustomerBikeMarkers(); 
+    notifyDriver(rideObj); 
+  }
+  
   function notifyDriver(ride) { let driverUser = db.users.find(u => u.driverId === ride.driverId); if(driverUser) showToast(`Driver ${ride.driverName} notified via app`); }
   
-  // DRIVER APP (Security: Only registered bikes with valid login)
-  function loadDriverApp() { document.getElementById('authScreen').style.display = 'none'; document.getElementById('driverApp').classList.remove('hidden'); document.getElementById('customerApp').classList.add('hidden'); document.getElementById('adminApp').classList.add('hidden'); let driverBike = db.bikes.find(b => b.driverId === currentUser.driverId); if(!driverBike) { showToast('No bike assigned'); return; } document.getElementById('driverNameDisplay').innerText = currentUser.name; document.getElementById('driverEarnings').innerText = `ZMW ${currentUser.earnings || 0}`; document.getElementById('driverRidesCount').innerText = currentUser.ridesCompleted || 0; initDriverMap(); trackDriverLocation(); checkForAssignedRide(); setInterval(() => checkForAssignedRide(), 5000); document.getElementById('toggleAvailabilityBtn').onclick = () => { let bike = db.bikes.find(b => b.driverId === currentUser.driverId); if(bike) { bike.status = bike.status === 'available' ? 'offline' : 'available'; saveDB(); showToast(`You are now ${bike.status === 'available' ? 'Online' : 'Offline'}`); updateCustomerBikeMarkers(); } }; }
+  // ========== DRIVER APP ==========
+  function loadDriverApp() { 
+    document.getElementById('authScreen').style.display = 'none'; 
+    document.getElementById('driverApp').classList.remove('hidden'); 
+    document.getElementById('customerApp').classList.add('hidden'); 
+    document.getElementById('adminApp').classList.add('hidden'); 
+    let driverBike = db.bikes.find(b => b.driverId === currentUser.driverId); 
+    if(!driverBike) { showToast('No bike assigned to this driver'); return; } 
+    document.getElementById('driverNameDisplay').innerText = currentUser.name; 
+    document.getElementById('driverEarnings').innerText = `ZMW ${currentUser.earnings || 0}`; 
+    document.getElementById('driverRidesCount').innerText = currentUser.ridesCompleted || 0; 
+    initDriverMap(); 
+    trackDriverLocation(); 
+    checkForAssignedRide(); 
+    setInterval(() => checkForAssignedRide(), 5000); 
+    document.getElementById('toggleAvailabilityBtn').onclick = () => { 
+      let bike = db.bikes.find(b => b.driverId === currentUser.driverId); 
+      if(bike) { bike.status = bike.status === 'available' ? 'offline' : 'available'; saveDB(); showToast(`You are now ${bike.status === 'available' ? 'Online' : 'Offline'}`); updateCustomerBikeMarkers(); } 
+    }; 
+  }
+  
   function initDriverMap() { driverMap = L.map('driverMap').setView(KASAMA_CENTER, 15); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(driverMap); }
-  function trackDriverLocation() { if(navigator.geolocation) { navigator.geolocation.watchPosition(pos => { let lat = pos.coords.latitude, lng = pos.coords.longitude; let bike = db.bikes.find(b => b.driverId === currentUser.driverId); if(bike) { bike.lat = lat; bike.lng = lng; saveDB(); if(driverMap) { driverMarkers.forEach(m => driverMap.removeLayer(m)); let driverMarker = L.marker([lat, lng], { icon: L.divIcon({ html: '<div style="background:#f5b042; border-radius:30px; padding:5px;"><i class="fas fa-motorcycle"></i></div>', iconSize: [30,30] }) }).addTo(driverMap).bindPopup('Your location'); driverMarkers = [driverMarker]; driverMap.setView([lat, lng], 16); } } }); } }
-  function checkForAssignedRide() { let activeRide = db.rides.find(r => r.driverId === currentUser.driverId && r.paymentDone === true && r.status !== 'completed'); if(activeRide) { document.getElementById('driverRidePanel').style.display = 'block'; document.getElementById('customerLocationInfo').innerHTML = `<i class="fas fa-user"></i> Customer: ${activeRide.customerName}<br><i class="fas fa-map-pin"></i> Pickup: ${activeRide.pickup}<br><i class="fas fa-money-bill"></i> Fare: ZMW ${activeRide.fare}`; if(!document.getElementById('completeRideBtn')) { let btn = document.createElement('button'); btn.id = 'completeRideBtn'; btn.className = 'btn-primary'; btn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Ride & Collect Payment'; btn.onclick = () => { activeRide.status = 'completed'; let driverUser = db.users.find(u => u.driverId === currentUser.driverId); if(driverUser) { driverUser.earnings = (driverUser.earnings || 0) + activeRide.fare; driverUser.ridesCompleted = (driverUser.ridesCompleted || 0) + 1; } let bike = db.bikes.find(b => b.driverId === currentUser.driverId); if(bike) bike.status = 'available'; saveDB(); document.getElementById('driverRidePanel').style.display = 'none'; showToast(`Ride completed! Earned ZMW ${activeRide.fare}`); location.reload(); }; document.getElementById('rideActionBtn').appendChild(btn); } } else { document.getElementById('driverRidePanel').style.display = 'none'; } }
   
-  // ADMIN APP (Register bikes, security, revenue)
+  function trackDriverLocation() { 
+    if(navigator.geolocation) { 
+      navigator.geolocation.watchPosition(pos => { 
+        let lat = pos.coords.latitude, lng = pos.coords.longitude; 
+        let bike = db.bikes.find(b => b.driverId === currentUser.driverId); 
+        if(bike) { bike.lat = lat; bike.lng = lng; saveDB(); 
+          if(driverMap) { driverMarkers.forEach(m => driverMap.removeLayer(m)); 
+            let driverMarker = L.marker([lat, lng], { icon: L.divIcon({ html: '<div style="background:#f5b042; border-radius:30px; padding:6px;"><i class="fas fa-motorcycle"></i></div>', iconSize: [30,30] }) }).addTo(driverMap).bindPopup('Your location'); 
+            driverMarkers = [driverMarker]; driverMap.setView([lat, lng], 16); 
+          } 
+        } 
+      }); 
+    } 
+  }
+  
+  function checkForAssignedRide() { 
+    let activeRide = db.rides.find(r => r.driverId === currentUser.driverId && r.paymentDone === true && r.status !== 'completed'); 
+    if(activeRide) { 
+      document.getElementById('driverRidePanel').style.display = 'block'; 
+      document.getElementById('customerLocationInfo').innerHTML = `<i class="fas fa-user"></i> Customer: ${activeRide.customerName}<br><i class="fas fa-phone"></i> ${activeRide.customerPhone || 'N/A'}<br><i class="fas fa-map-pin"></i> Pickup: ${activeRide.pickup}<br><i class="fas fa-money-bill"></i> Fare: ZMW ${activeRide.fare}<br><button class="contact-btn call" style="background:#22c55e; margin-top:6px;" onclick="makeCall('${activeRide.customerPhone}')"><i class="fas fa-phone"></i> Call Customer</button>`; 
+      if(!document.getElementById('completeRideBtn')) { 
+        let btn = document.createElement('button'); btn.id = 'completeRideBtn'; btn.className = 'btn-primary'; btn.innerHTML = '<i class="fas fa-check-circle"></i> Complete Ride & Collect Payment'; btn.onclick = () => { 
+          activeRide.status = 'completed'; 
+          let driverUser = db.users.find(u => u.driverId === currentUser.driverId); 
+          if(driverUser) { driverUser.earnings = (driverUser.earnings || 0) + activeRide.fare; driverUser.ridesCompleted = (driverUser.ridesCompleted || 0) + 1; } 
+          let bike = db.bikes.find(b => b.driverId === currentUser.driverId); 
+          if(bike) bike.status = 'available'; 
+          saveDB(); document.getElementById('driverRidePanel').style.display = 'none'; showToast(`Ride completed! Earned ZMW ${activeRide.fare}`); location.reload(); 
+        }; 
+        document.getElementById('rideActionBtn').appendChild(btn); 
+      } 
+    } else { document.getElementById('driverRidePanel').style.display = 'none'; } 
+  }
+  
+  // ========== ADMIN APP ==========
   function loadAdminApp() { document.getElementById('authScreen').style.display = 'none'; document.getElementById('adminApp').classList.remove('hidden'); document.getElementById('customerApp').classList.add('hidden'); document.getElementById('driverApp').classList.add('hidden'); renderAdminBikeList(); drawRevenueChart(); }
-  function renderAdminBikeList() { let container = document.getElementById('adminBikeList'); container.innerHTML = ''; db.bikes.forEach(bike => { let div = document.createElement('div'); div.className = 'bike-item'; div.innerHTML = `<div><strong>${bike.registration}</strong><br>${bike.driverName}</div><div><span class="bike-status">${bike.status}</span></div><div><button onclick="toggleBikeStatus(${bike.id})" style="background:#f5b042; border:none; padding:4px 12px; border-radius:20px;">Toggle</button></div>`; container.appendChild(div); }); }
-  window.toggleBikeStatus = (id) => { let bike = db.bikes.find(b => b.id === id); if(bike) { bike.status = bike.status === 'available' ? 'offline' : 'available'; saveDB(); renderAdminBikeList(); showToast(`Bike ${bike.registration} status changed`); } };
-  document.getElementById('addBikeBtn').onclick = () => { let reg = document.getElementById('bikeRegNo').value; let dname = document.getElementById('bikeDriverName').value; let phone = document.getElementById('bikeDriverPhone').value; let pwd = document.getElementById('bikePassword').value; if(!reg || !dname) { showToast('Fill all fields'); return; } let driverId = 'DRV' + Date.now(); let newBike = { id: db.bikes.length + 1, registration: reg, driverId: driverId, driverName: dname, isActive: true, lat: KASAMA_CENTER[0] + (Math.random() - 0.5) * 0.02, lng: KASAMA_CENTER[1] + (Math.random() - 0.5) * 0.02, status: 'available' }; db.bikes.push(newBike); let newDriver = { id: db.users.length + 1, username: dname.toLowerCase().replace(/\s/g,''), password: pwd, role: 'driver', name: dname, driverId: driverId, phone: phone, earnings: 0, ridesCompleted: 0, isOnline: true, assignedBike: reg }; db.users.push(newDriver); saveDB(); renderAdminBikeList(); showToast(`Bike ${reg} registered! Driver login: ${newDriver.username}/${pwd}`); document.getElementById('bikeRegNo').value = ''; document.getElementById('bikeDriverName').value = ''; document.getElementById('bikeDriverPhone').value = ''; drawRevenueChart(); };
-  function drawRevenueChart() { let totalRevenue = db.payments.reduce((sum, p) => sum + p.amount, 0); let ctx = document.getElementById('revenueChart').getContext('2d'); new Chart(ctx, { type: 'bar', data: { labels: ['Total Revenue', 'Rides Completed'], datasets: [{ label: 'ZMW', data: [totalRevenue, db.rides.filter(r => r.status === 'completed').length], backgroundColor: '#0f3b2c' }] } }); }
   
-  // Role selector UI
+  function renderAdminBikeList() { let container = document.getElementById('adminBikeList'); container.innerHTML = ''; db.bikes.forEach(bike => { let div = document.createElement('div'); div.className = 'bike-item'; div.innerHTML = `<div><strong>${bike.registration}</strong><br>${bike.driverName}<br><small>📞 ${bike.driverPhone || 'No phone'}</small></div><div><span class="bike-status">${bike.status}</span></div><div><button onclick="toggleBikeStatus(${bike.id})" style="background:#f5b042; border:none; padding:4px 12px; border-radius:20px;">Toggle</button></div>`; container.appendChild(div); }); }
+  
+  window.toggleBikeStatus = (id) => { let bike = db.bikes.find(b => b.id === id); if(bike) { bike.status = bike.status === 'available' ? 'offline' : 'available'; saveDB(); renderAdminBikeList(); showToast(`Bike ${bike.registration} status changed`); updateCustomerBikeMarkers(); } };
+  
+  document.getElementById('addBikeBtn').onclick = () => { 
+    let reg = document.getElementById('bikeRegNo').value; let dname = document.getElementById('bikeDriverName').value; let phone = document.getElementById('bikeDriverPhone').value; let pwd = document.getElementById('bikePassword').value; 
+    if(!reg || !dname) { showToast('Fill registration and driver name'); return; } 
+    let driverId = 'DRV' + Date.now(); 
+    let newBike = { id: db.bikes.length + 1, registration: reg, driverId: driverId, driverName: dname, driverPhone: phone || '+26097XXXXXX', isActive: true, lat: KASAMA_CENTER[0] + (Math.random() - 0.5) * 0.02, lng: KASAMA_CENTER[1] + (Math.random() - 0.5) * 0.02, status: 'available' }; 
+    db.bikes.push(newBike); 
+    let newDriver = { id: db.users.length + 1, username: dname.toLowerCase().replace(/\s/g,'') + Date.now(), password: pwd, role: 'driver', name: dname, phone: phone, driverId: driverId, earnings: 0, ridesCompleted: 0, isOnline: true, assignedBike: reg }; 
+    db.users.push(newDriver); saveDB(); renderAdminBikeList(); showToast(`Bike ${reg} registered! Driver login: ${newDriver.username}/${pwd}`); document.getElementById('bikeRegNo').value = ''; document.getElementById('bikeDriverName').value = ''; document.getElementById('bikeDriverPhone').value = ''; drawRevenueChart(); updateCustomerBikeMarkers(); 
+  };
+  
+  function drawRevenueChart() { let totalRevenue = db.payments.reduce((sum, p) => sum + p.amount, 0); let ctx = document.getElementById('revenueChart').getContext('2d'); new Chart(ctx, { type: 'bar', data: { labels: ['Total Revenue (ZMW)', 'Completed Rides'], datasets: [{ label: 'Kasama Operations', data: [totalRevenue, db.rides.filter(r => r.status === 'completed').length], backgroundColor: '#0f3b2c' }] } }); }
+  
   document.querySelectorAll('.role-btn').forEach(btn => { btn.onclick = () => { document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }; });
-  // Fallback map update for customer & driver sync
-  setInterval(() => { if(currentUser && currentUser.role === 'customer') updateCustomerBikeMarkers(); }, 5000);
-  showToast('Welcome to Kasama Rides! Secure bike taxi for Northern Province.');
+  
+  window.makeCall = makeCall;
+  window.sendSMS = sendSMS;
+  showToast('Kasama Rides is ready! Click on any bike on the map to see driver details and contact options.');
 </script>
 </body>
 </html>
