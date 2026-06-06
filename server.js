@@ -214,7 +214,7 @@ io.on('connection', (socket) => {
 });
 
 // Start server on port 5000
-const PORT = 5000;
+const PORT = 5001;
 const HOST = 'localhost';
 
 server.listen(PORT, HOST, () => {
