@@ -52,11 +52,15 @@
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #0a1e2f; color: white; padding: 10px 20px; border-radius: 40px; font-size: 0.8rem; display: none; z-index: 2000; white-space: nowrap; }
         .hidden { display: none; }
         .auth-screen { padding: 40px 20px; text-align: center; }
+        .status-badge { position: fixed; top: 10px; right: 10px; background: #22c55e; color: white; padding: 4px 8px; border-radius: 20px; font-size: 10px; z-index: 1000; }
     </style>
 </head>
 <body>
 <div class="phone">
     <div class="status-bar"><span>9:41</span><span><i class="fas fa-signal"></i> <i class="fas fa-battery-full"></i></span></div>
+    
+    <!-- Server Status Badge -->
+    <div id="serverStatus" class="status-badge" style="background:#ef4444;">🔴 Offline</div>
     
     <!-- Login Screen -->
     <div id="authScreen" class="app-content">
@@ -132,13 +136,39 @@
     let currentUser = null;
     let map = null;
     let markers = [];
-    let socket = null;
     let selectedVehicle = 'bike';
+    
+    // Check server status
+    async function checkServerStatus() {
+        try {
+            const response = await fetch('http://localhost:5000/api/health');
+            if (response.ok) {
+                document.getElementById('serverStatus').innerHTML = '🟢 Online';
+                document.getElementById('serverStatus').style.background = '#22c55e';
+                console.log('✅ Server is running on port 5000');
+                return true;
+            }
+        } catch (error) {
+            document.getElementById('serverStatus').innerHTML = '🔴 Offline (Start server)';
+            document.getElementById('serverStatus').style.background = '#ef4444';
+            console.error('❌ Server not running on port 5000');
+            showToast('⚠️ Backend server is not running! Please start the server with: node server.js');
+            return false;
+        }
+        return false;
+    }
     
     // Login function
     async function login() {
         const phone = document.getElementById('phone').value;
         const password = document.getElementById('password').value;
+        
+        // Check if server is running first
+        const isServerRunning = await checkServerStatus();
+        if (!isServerRunning) {
+            showToast('Cannot connect to server. Please start the backend first!');
+            return;
+        }
         
         showToast('Logging in...');
         
@@ -157,10 +187,6 @@
                 localStorage.setItem('token', authToken);
                 localStorage.setItem('user', JSON.stringify(currentUser));
                 
-                // Initialize socket
-                initSocket();
-                
-                // Load customer app
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 
@@ -176,21 +202,6 @@
             console.error('Login error:', error);
             showToast('Cannot connect to server. Make sure backend is running on port 5000');
         }
-    }
-    
-    // Initialize Socket
-    function initSocket() {
-        socket = io('http://localhost:5000', {
-            transports: ['websocket'],
-            reconnection: true
-        });
-        
-        socket.on('connect', () => {
-            console.log('Socket connected');
-            if (currentUser) {
-                socket.emit('customer_online', { customerId: currentUser.id });
-            }
-        });
     }
     
     // Initialize Map
@@ -221,7 +232,7 @@
     
     // Load nearby vehicles
     async function loadNearbyVehicles() {
-        if (!map) return;
+        if (!map || !authToken) return;
         
         const center = map.getCenter();
         const lat = center.lat;
@@ -466,13 +477,16 @@
         location.reload();
     }
     
+    // Check server status on load
+    checkServerStatus();
+    setInterval(checkServerStatus, 5000);
+    
     // Check for saved session
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
     if (savedToken && savedUser) {
         authToken = savedToken;
         currentUser = JSON.parse(savedUser);
-        initSocket();
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         initMap();
