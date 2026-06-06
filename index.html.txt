@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Kasama Rides - Professional Bike & Taxi App | Northern Province, Zambia</title>
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Smartphone Frame */
+        .phone-frame {
+            width: 100%;
+            max-width: 430px;
+            height: 932px;
+            background: #ffffff;
+            box-shadow: 0 0 0 10px #2c2c2c, 0 0 0 15px #1a1a1a, 0 20px 40px rgba(0,0,0,0.3);
+            border-radius: 44px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            background: #0a1e2f;
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        .app-container {
+            height: calc(100% - 44px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #f8fafc;
+        }
+
+        .app-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #0a1e2f 0%, #0f3b2c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 0 0 30px 30px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .logo i {
+            color: #f5b042;
+            margin-right: 8px;
+        }
+
+        .user-menu {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-menu i {
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .welcome-section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .welcome-section p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Map Container */
+        .map-container {
+            margin: 16px;
+            border-radius: 24px;
+            overflow: hidden;
+            height: 280px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 2px solid white;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin: 16px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .action-btn {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            text-align: center;
+            min-width: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn i {
+            font-size: 1.5rem;
+            color: #f5b042;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .action-btn span {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #0a1e2f;
+        }
+
+        /* Booking Card */
+        .booking-card {
+            background: white;
+            margin: 16px;
+            padding: 20px;
+            border-radius: 28px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0a1e2f;
+        }
+
+        .location-input {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .location-input i {
+            color: #0f3b2c;
+            width: 24px;
+        }
+
+        .location-input input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .vehicle-selector {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .vehicle-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 20px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .vehicle-option.selected {
+            background: #e6f7e6;
+            border-color: #0f3b2c;
+        }
+
+        .vehicle-option i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .fare-estimate {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 14px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            margin: 16px 0;
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f3b2c, #0a1e2f);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* Nearby Vehicles List */
+        .nearby-list {
+            margin: 16px;
+            background: white;
+            border-radius: 24px;
+            padding: 16px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .vehicle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .vehicle-item:hover {
+            background: #f8fafc;
+        }
+
+        .vehicle-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vehicle-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #0f3b2c, #0a1e2f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .vehicle-details strong {
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .vehicle-details small {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        .distance-badge {
+            font-size: 0.7rem;
+            background: #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-around;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-item {
+            text-align: center;
+            padding: 8px;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: #0f3b2c;
+        }
+
+        .nav-item i {
+            font-size: 1.3rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 0.7rem;
+            display: block;
+        }
+
+        /* Ride Status Panel */
+        .ride-panel {
+            position: fixed;
+            bottom: 80px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0a1e2f;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 2000;
+            display: none;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 430px) {
+            .phone-frame {
+                border-radius: 0;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="phone-frame">
+    <div class="status-bar">
+        <span>9:41</span>
+        <span><i class="fas fa-signal"></i> <i class="fas fa-battery-full"></i></span>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="authScreen" class="app-container">
+        <div class="header" style="text-align: center;">
+            <div class="logo"><i class="fas fa-motorcycle"></i> Kasama Rides</div>
+            <p style="margin-top: 10px; opacity: 0.9;">Northern Province, Zambia</p>
+        </div>
+        <div class="booking-card">
+            <div class="section-title"><i class="fas fa-user-circle"></i> Welcome Back</div>
+            <div class="location-input"><i class="fas fa-phone"></i><input type="tel" id="loginPhone" placeholder="Phone Number" value="+260977123456"></div>
+            <div class="location-input"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="Password" value="password123"></div>
+            <button class="btn-primary" onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <p style="text-align: center; margin-top: 16px; font-size: 0.7rem; color: #64748b;">
+                Demo: +260977123456 / password123<br>
+                <span style="font-size: 0.6rem;">Admin: +260970000001 / admin123</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Customer App -->
+    <div id="mainApp" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="app-container" style="flex: 1;">
+            <div class="header">
+                <div class="header-top">
+                    <div class="logo"><i class="fas fa-motorcycle"></i> Kasama Rides</div>
+                    <div class="user-menu">
+                        <i class="fas fa-bell"></i>
+                        <i class="fas fa-user-circle" onclick="logout()"></i>
+                    </div>
+                </div>
+                <div class="welcome-section">
+                    <h2 id="welcomeName">Welcome back!</h2>
+                    <p><i class="fas fa-map-marker-alt"></i> <span id="locationText">Kasama Central</span></p>
+                </div>
+            </div>
+
+            <div class="map-container"><div id="map"></div></div>
+
+            <div class="quick-actions">
+                <div class="action-btn" onclick="setQuickLocation('Kasama Town Centre')"><i class="fas fa-building"></i><span>Town Centre</span></div>
+                <div class="action-btn" onclick="setQuickLocation('Chinsali Road')"><i class="fas fa-road"></i><span>Chinsali Rd</span></div>
+                <div class="action-btn" onclick="setQuickLocation('East Park Mall')"><i class="fas fa-shopping-mall"></i><span>East Park</span></div>
+                <div class="action-btn" onclick="setQuickLocation('Airport')"><i class="fas fa-plane"></i><span>Airport</span></div>
+            </div>
+
+            <div class="booking-card">
+                <div class="section-title"><i class="fas fa-ticket-alt"></i> Where to?</div>
+                <div class="location-input"><i class="fas fa-circle-dot"></i><input type="text" id="pickupLocation" placeholder="Pickup location" value="Kasama Town Centre"></div>
+                <div class="location-input"><i class="fas fa-flag-checkered"></i><input type="text" id="dropoffLocation" placeholder="Dropoff location" value="Chinsali Road"></div>
+                
+                <div class="vehicle-selector">
+                    <div class="vehicle-option selected" data-type="bike" onclick="selectVehicle('bike')"><i class="fas fa-motorcycle"></i><span>Bike</span><small>Fast & Cheap</small></div>
+                    <div class="vehicle-option" data-type="car" onclick="selectVehicle('car')"><i class="fas fa-car"></i><span>ULENDO Car</span><small>Comfort</small></div>
+                    <div class="vehicle-option" data-type="taxi" onclick="selectVehicle('taxi')"><i class="fas fa-taxi"></i><span>Taxi</span><small>Family</small></div>
+                </div>
+                
+                <div class="fare-estimate"><span>💰 Estimated Fare</span><strong id="fareAmount">ZMW 22</strong></div>
+                <button class="btn-primary" onclick="requestRide()"><i class="fas fa-location-dot"></i> Request Ride</button>
+            </div>
+
+            <div class="nearby-list">
+                <div class="section-title"><i class="fas fa-taxi"></i> Nearby Vehicles</div>
+                <div id="vehiclesList">Loading nearby vehicles...</div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('home')"><i class="fas fa-home"></i><span>Home</span></div>
+            <div class="nav-item" onclick="switchTab('rides')"><i class="fas fa-history"></i><span>Rides</span></div>
+            <div class="nav-item" onclick="switchTab('promo')"><i class="fas fa-tag"></i><span>Promo</span></div>
+            <div class="nav-item" onclick="switchTab('profile')"><i class="fas fa-user"></i><span>Profile</span></div>
+        </div>
+    </div>
+
+    <div id="rideStatusPanel" class="ride-panel"></div>
+    <div id="toast" class="toast-message"></div>
+</div>
+
+<script>
+    // API Configuration
+    const API_URL = 'http://localhost:5000/api';
+    let socket = null;
+    let currentUser = null;
+    let authToken = null;
+    let map = null;
+    let mapMarkers = [];
+    let locationWatchId = null;
+    let selectedVehicle = 'bike';
+    let currentRide = null;
+
+    // Initialize Socket Connection
+    function initSocket() {
+        socket = io('http://localhost:5000', {
+            transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 5
+        });
+        
+        socket.on('connect', () => {
+            console.log('Socket connected');
+            showToast('Connected to server');
+            if (currentUser && currentUser.role === 'customer') {
+                socket.emit('customer_online', { customerId: currentUser.id, userId: currentUser.userId });
+            }
+        });
+        
+        socket.on('driver_location_update', (data) => {
+            updateDriverLocationOnMap(data);
+        });
+        
+        socket.on('ride_accepted', (data) => {
+            showRideAccepted(data);
+        });
+        
+        socket.on('driver_arrived', (data) => {
+            showToast('Your driver has arrived!');
+            updateRidePanel('arrived');
+        });
+        
+        socket.on('ride_started', (data) => {
+            showToast('Your ride has started');
+            updateRidePanel('started');
+        });
+        
+        socket.on('ride_completed', (data) => {
+            showToast(`Ride completed! Amount: ZMW ${data.actualFare}`);
+            updateRidePanel('completed', data);
+        });
+    }
+
+    // Login Function
+    async function login() {
+        const phone = document.getElementById('loginPhone').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        showToast('Logging in...');
+        
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                currentUser = data.user;
+                authToken = data.token;
+                localStorage.setItem('token', authToken);
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                
+                initSocket();
+                
+                if (currentUser.role === 'customer') {
+                    loadCustomerApp();
+                } else if (currentUser.role === 'driver') {
+                    loadDriverApp();
+                } else if (currentUser.role === 'admin') {
+                    loadAdminApp();
+                }
+            } else {
+                showToast(data.error || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            showToast('Connection error. Make sure backend is running on port 5000');
+        }
+    }
+
+    // Load Customer App
+    async function loadCustomerApp() {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('welcomeName').innerHTML = `Welcome, ${currentUser.name.split(' ')[0]}!`;
+        
+        initMap();
+        await loadNearbyVehicles();
+        setInterval(loadNearbyVehicles, 15000);
+        startLocationTracking();
+        
+        if (socket) {
+            socket.emit('customer_online', { customerId: currentUser.id, userId: currentUser.userId });
+        }
+    }
+
+    // Initialize Map with Real Coordinates
+    function initMap() {
+        const kasamaCenter = [-10.2125, 31.1800];
+        map = L.map('map').setView(kasamaCenter, 14);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Add custom marker for user location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const userLoc = [pos.coords.latitude, pos.coords.longitude];
+                map.setView(userLoc, 15);
+                
+                L.marker(userLoc, {
+                    icon: L.divIcon({
+                        html: '<div style="background:#3b82f6; border-radius:50%; padding:10px; color:white; border:2px solid white;"><i class="fas fa-user"></i></div>',
+                        iconSize: [40, 40],
+                        className: 'user-marker'
+                    })
+                }).addTo(map).bindPopup('You are here').openPopup();
+            });
+        }
+    }
+
+    // Load Nearby Vehicles from Backend
+    async function loadNearbyVehicles() {
+        if (!map) return;
+        
+        const center = map.getCenter();
+        const lat = center.lat;
+        const lng = center.lng;
+        
+        try {
+            const response = await fetch(`${API_URL}/bikes/nearby?lat=${lat}&lng=${lng}&radius=5&vehicle_type=${selectedVehicle}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                updateMapMarkers(data.vehicles);
+                updateVehiclesList(data.vehicles);
+                document.querySelector('.nearby-list .section-title').innerHTML = `<i class="fas fa-taxi"></i> Nearby Vehicles (${data.vehicles.length})`;
+            }
+        } catch (error) {
+            console.error('Error loading vehicles:', error);
+        }
+    }
+
+    // Update Map Markers
+    function updateMapMarkers(vehicles) {
+        mapMarkers.forEach(marker => map.removeLayer(marker));
+        mapMarkers = [];
+        
+        vehicles.forEach(vehicle => {
+            const color = vehicle.vehicle_type === 'bike' ? '#0f3b2c' : (vehicle.vehicle_type === 'car' ? '#f5b042' : '#2563eb');
+            const icon = vehicle.vehicle_type === 'bike' ? 'fa-motorcycle' : (vehicle.vehicle_type === 'car' ? 'fa-car' : 'fa-taxi');
+            
+            const markerIcon = L.divIcon({
+                html: `<div style="background:${color}; border-radius:50%; padding:10px; color:white; width:44px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                        <i class="fas ${icon}"></i>
+                        <div style="font-size:10px; margin-top:2px;">${vehicle.distance_km}km</div>
+                       </div>`,
+                iconSize: [44, 44],
+                className: 'vehicle-marker'
+            });
+            
+            const marker = L.marker([vehicle.current_latitude, vehicle.current_longitude], { icon: markerIcon })
+                .addTo(map)
+                .bindPopup(`
+                    <div style="min-width:200px;">
+                        <strong><i class="fas ${icon}"></i> ${vehicle.driver_name}</strong><br>
+                        <small>${vehicle.registration_number} • ${vehicle.vehicle_type.toUpperCase()}</small><br>
+                        📞 ${vehicle.driver_phone}<br>
+                        ⭐ ${vehicle.driver_rating}/5.0<br>
+                        📍 ${vehicle.distance_km} km away • ${vehicle.eta_minutes} min ETA<br>
+                        <hr>
+                        <button onclick="callDriver('${vehicle.driver_phone}')" style="background:#22c55e; color:white; border:none; padding:8px 12px; border-radius:20px; margin:5px 0; width:100%;">
+                            <i class="fas fa-phone"></i> Call Driver
+                        </button>
+                        <button onclick="bookThisVehicle(${vehicle.id})" style="background:#0f3b2c; color:white; border:none; padding:8px 12px; border-radius:20px; width:100%;">
+                            <i class="fas fa-book"></i> Book Now
+                        </button>
+                    </div>
+                `);
+            
+            mapMarkers.push(marker);
+        });
+    }
+
+    // Update Vehicles List
+    function updateVehiclesList(vehicles) {
+        const container = document.getElementById('vehiclesList');
+        
+        if (vehicles.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px;">No vehicles available nearby</div>';
+            return;
+        }
+        
+        container.innerHTML = vehicles.map(vehicle => `
+            <div class="vehicle-item" onclick="focusOnVehicle(${vehicle.current_latitude}, ${vehicle.current_longitude})">
+                <div class="vehicle-info">
+                    <div class="vehicle-avatar"><i class="fas ${vehicle.vehicle_type === 'bike' ? 'fa-motorcycle' : (vehicle.vehicle_type === 'car' ? 'fa-car' : 'fa-taxi')}"></i></div>
+                    <div class="vehicle-details">
+                        <strong>${vehicle.driver_name}</strong>
+                        <small>${vehicle.registration_number} • ${vehicle.model || vehicle.vehicle_type}</small>
+                        <div><small>⭐ ${vehicle.driver_rating} • ${vehicle.completed_rides || 0} rides</small></div>
+                    </div>
+                </div>
+                <div class="distance-badge">${vehicle.distance_km}km • ${vehicle.eta_minutes}min</div>
+            </div>
+        `).join('');
+    }
+
+    // Request a Ride
+    async function requestRide() {
+        const pickup = document.getElementById('pickupLocation').value;
+        const dropoff = document.getElementById('dropoffLocation').value;
+        const center = map.getCenter();
+        
+        if (!pickup || !dropoff) {
+            showToast('Please enter pickup and dropoff locations');
+            return;
+        }
+        
+        const fare = parseInt(document.getElementById('fareAmount').innerText.replace('ZMW ', ''));
+        
+        showToast('Finding nearby drivers...');
+        
+        const rideData = {
+            pickup_address: pickup,
+            pickup_lat: center.lat,
+            pickup_lng: center.lng,
+            dropoff_address: dropoff,
+            dropoff_lat: center.lat + 0.01,
+            dropoff_lng: center.lng + 0.01,
+            vehicle_type: selectedVehicle,
+            estimated_distance: 2.5,
+            estimated_fare: fare,
+            payment_method: 'mtn_momo'
+        };
+        
+        try {
+            const response = await fetch(`${API_URL}/rides/request`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(rideData)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                currentRide = data.ride;
+                showPaymentPanel(currentRide);
+            } else {
+                showToast(data.error || 'Failed to request ride');
+            }
+        } catch (error) {
+            console.error('Ride request error:', error);
+            showToast('Network error. Please try again');
+        }
+    }
+
+    // Show Payment Panel
+    function showPaymentPanel(ride) {
+        const panel = document.getElementById('rideStatusPanel');
+        panel.innerHTML = `
+            <div style="text-align:center;">
+                <i class="fas fa-credit-card" style="font-size:2rem; color:#f5b042;"></i>
+                <h3>Payment Required</h3>
+                <p>Amount: <strong>ZMW ${ride.estimated_fare}</strong></p>
+                <div style="margin:16px 0;">
+                    <button onclick="processPayment(${ride.id}, ${ride.estimated_fare})" style="background:#22c55e; color:white; border:none; padding:12px 20px; border-radius:40px; width:100%;">
+                        <i class="fas fa-mobile-alt"></i> Pay with MTN Mobile Money
+                    </button>
+                </div>
+                <small>Secure payment powered by MTN Zambia</small>
+            </div>
+        `;
+        panel.style.display = 'block';
+    }
+
+    // Process Payment
+    async function processPayment(rideId, amount) {
+        const mtnNumber = prompt('Enter MTN Mobile Money number:', '0977XXXXXX');
+        if (!mtnNumber) return;
+        
+        showToast('Processing payment...');
+        
+        try {
+            const response = await fetch(`${API_URL}/rides/${rideId}/pay`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    payment_method: 'mtn_momo',
+                    mtn_momo_number: mtnNumber
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast('Payment successful! Driver is on the way');
+                document.getElementById('rideStatusPanel').style.display = 'none';
+                updateRidePanel('confirmed', { transactionId: data.transaction_id });
+            } else {
+                showToast(data.error || 'Payment failed');
+            }
+        } catch (error) {
+            showToast('Payment processing error');
+        }
+    }
+
+    // Helper Functions
+    function selectVehicle(type) {
+        selectedVehicle = type;
+        document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelector(`.vehicle-option[data-type="${type}"]`).classList.add('selected');
+        
+        const fares = { bike: 22, car: 45, taxi: 60 };
+        document.getElementById('fareAmount').innerHTML = `ZMW ${fares[type]}`;
+        loadNearbyVehicles();
+    }
+
+    function setQuickLocation(location) {
+        document.getElementById('pickupLocation').value = location;
+        showToast(`${location} selected as pickup`);
+    }
+
+    function focusOnVehicle(lat, lng) {
+        map.setView([lat, lng], 17);
+        showToast('Vehicle location focused');
+    }
+
+    function callDriver(phone) {
+        if (phone) window.location.href = `tel:${phone}`;
+    }
+
+    function bookThisVehicle(vehicleId) {
+        showToast('Booking this vehicle...');
+        requestRide();
+    }
+
+    function updateRidePanel(status, data = {}) {
+        const panel = document.getElementById('rideStatusPanel');
+        if (status === 'confirmed') {
+            panel.innerHTML = `
+                <div style="text-align:center;">
+                    <i class="fas fa-check-circle" style="font-size:2rem; color:#22c55e;"></i>
+                    <h3>Payment Confirmed!</h3>
+                    <p>Transaction ID: ${data.transactionId}</p>
+                    <p>Driver is on the way to your location</p>
+                    <div class="loading-spinner">⏳</div>
+                </div>
+            `;
+            panel.style.display = 'block';
+            setTimeout(() => panel.style.display = 'none', 5000);
+        }
+    }
+
+    function showRideAccepted(data) {
+        showToast(`Driver accepted! ETA: ${data.estimatedArrival} minutes`);
+    }
+
+    function startLocationTracking() {
+        if (navigator.geolocation) {
+            locationWatchId = navigator.geolocation.watchPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                document.getElementById('locationText').innerHTML = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            });
+        }
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        
+        if (tab === 'rides') {
+            loadRideHistory();
+        }
+    }
+
+    async function loadRideHistory() {
+        try {
+            const response = await fetch(`${API_URL}/rides/history`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await response.json();
+            
+            const panel = document.getElementById('rideStatusPanel');
+            if (data.rides && data.rides.length > 0) {
+                panel.innerHTML = `
+                    <h3>Your Ride History</h3>
+                    ${data.rides.map(ride => `
+                        <div style="padding:12px; border-bottom:1px solid #e2e8f0;">
+                            <strong>${ride.ride_number}</strong><br>
+                            ${ride.pickup_address} → ${ride.dropoff_address}<br>
+                            ZMW ${ride.actual_fare || ride.estimated_fare} • ${ride.status}
+                        </div>
+                    `).join('')}
+                `;
+                panel.style.display = 'block';
+                setTimeout(() => panel.style.display = 'none', 8000);
+            }
+        } catch (error) {
+            console.error('Error loading history:', error);
+        }
+    }
+
+    function updateDriverLocationOnMap(data) {
+        // Update driver marker on map
+        const driverMarker = mapMarkers.find(m => m.driverId === data.driverId);
+        if (driverMarker) {
+            driverMarker.setLatLng([data.lat, data.lng]);
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 3000);
+    }
+
+    function logout() {
+        if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
+        if (socket) socket.disconnect();
+        localStorage.clear();
+        location.reload();
+    }
+
+    // Check for saved session
+    const savedToken = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    if (savedToken && savedUser) {
+        authToken = savedToken;
+        currentUser = JSON.parse(savedUser);
+        initSocket();
+        if (currentUser.role === 'customer') loadCustomerApp();
+    }
+
+    // Make functions global
+    window.login = login;
+    window.logout = logout;
+    window.selectVehicle = selectVehicle;
+    window.setQuickLocation = setQuickLocation;
+    window.requestRide = requestRide;
+    window.callDriver = callDriver;
+    window.bookThisVehicle = bookThisVehicle;
+    window.focusOnVehicle = focusOnVehicle;
+    window.switchTab = switchTab;
+    window.processPayment = processPayment;
+</script>
+</body>
+</html>

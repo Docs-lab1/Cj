@@ -1,0 +1,16 @@
+// This file is for advanced socket handling
+// You can add more socket event handlers here if needed
+
+module.exports = (io) => {
+  io.on('connection', (socket) => {
+    console.log('Socket connected:', socket.id);
+    
+    socket.on('join_ride', (rideId) => {
+      socket.join(`ride_${rideId}`);
+    });
+    
+    socket.on('leave_ride', (rideId) => {
+      socket.leave(`ride_${rideId}`);
+    });
+  });
+};
